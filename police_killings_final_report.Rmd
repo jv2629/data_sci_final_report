@@ -1,0 +1,28 @@
+---
+title: "Police Killings Final Report"
+author: "Nathalie Fadel, Chirag Shahs, Jeanette Shekelle, Jaclyn Verity"
+date: "December 4, 2018"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Factors Associated with Police Killings in America in 2015
+
+###Motivation
+In recent years police brutatlity and the resulting deaths of citizens has become a critical issue in the public eye. With the traagic stories of (names of recent victims that stick in memory) lasting in our hearts and minds we wanted to know if the data matches the tragedies portrayed on the news. 
+
+###Related Work
+Recognizing that no public data base existed for all of the victims of police killings, The Guardian began an interactive database called The Counted to keep track of reported police killings throughout the US. FiveThirtyEight stepped in, geocoded the locations of the killings and added selected census data. 
+###Initial Questions
+
+###Data
+
+###Exploratory Analysis
+
+###Additional Analysis
+
+###Discussion
+
