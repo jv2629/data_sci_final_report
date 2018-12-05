@@ -183,6 +183,8 @@ ggplot(top_cities, aes(fill = year, x = city_state, y = total_killed)) + geom_ba
 
 Most of the Top 20 for police killings occured in 2016. The top 3 in 2016 also made the Top 20 overall. Looks like \# 1 in 2015 would be 6 in 2016.
 
+Including 2016 would give our analysis a lot more power. To include 2016 the locations of death would need to be geocoded and then joined with census data for those census tracts. After finding a free geocoding service through the University of Texas A&M, I realized the 2016 data does not have zipcodes. This makes the task of geocoding for latitude and longitude an enormous undertaking. Each of the 1000+ killing locations would need to be plugged into google maps to retreive the zipcode. At that point we could get the latitude and longitude using that method. It would take hours of monotonous work and is beyond our capabilities for this project.
+
 Cause of Death by Police...
 
 ``` r
