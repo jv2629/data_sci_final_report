@@ -56,6 +56,16 @@ city_data = raw_data %>%
 
 Found that most cities have 1 killing in 2015. LA had the most with 9.
 
+```{r}
+state_level_data = raw_data %>%
+  group_by(state) %>% 
+  mutate(month = factor(month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")),
+         year = as.integer(year)) %>% 
+  summarise(total_killed = n())
+```
+
+California tops the list with 74 killings, which makes sense since Los Angeles is the city with the highest number of killings (9). It is followed distantly by Texas (46) and Florida (29).
+
 Looking to download data from same resource for 2016. The website has a downloadable csv. Formatted exactly the same. But it is missing census data and the very important latitude and longitude for matching the census data. This is a big draw back for inclusion of 2016 data but let's explore it, anyway. 
 
 ```{r load 2016 data}
@@ -150,22 +160,81 @@ _The vast majority of police killings were happening in California, with 74 tota
 
 **2)	When are the killings happening? Is there a specific month with more killings?**
 
+[[Nathalie's Exploratory Analysis]]
+
 _This exploration did not yield interesting results. We didn’t initially realize that the dataset was only January - June. Additionally, there was little variation in killings between months._ 
 
 **3)	What is the racial makeup of people killed by police?**
 
+[[Chirag's Exploratory Analysis]]
+
 _The majority of people killed were white, with black being the second most common. This was slightly surprising because the media had made us believe that the most common people killed would be black. However, we then thought about the proportionality of race to the overall population and decided that while there were more whites than blacks killed, there was most likely a higher proportion of blacks killed compared to the total population of blacks._ 
 
 **4)	How does poverty relate to police killings?**
+
+Data Import and Cleaning...
+```{r}
+raw_data = read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/police-killings/police_killings.csv") %>%
+  janitor::clean_names()
+
+
+clean_data = raw_data %>%
+  group_by(state) %>% 
+  mutate(month = factor(month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")),
+         year = as.integer(year)) %>% 
+  mutate(total_killed = n()) %>% 
+  mutate(pov = as.numeric(pov))
+  
+```
+
+SES by state level...
+```{r}
+SES_clean_data = 
+  clean_data %>% 
+  group_by(state) %>% 
+  mutate(state_pov = mean(pov)) %>% 
+  select(state_pov, state, total_killed, nat_bucket) %>% 
+  unique()
+```
+
+```{r}
+SES_clean_data %>% 
+  ggplot(aes(x = total_killed, y = state_pov, color = nat_bucket)) +
+  geom_point() +
+  labs(x = "Total Killings per State", y = "State Poverty Rate", label = "Median Household Income by Quintile Nationally")
+```
+
+State poverty level is not related to total killings per state. This is most likely because states like California are very wealthy, but have the highest number of killings (74 total). 
+
 
 _This exploration also did not yield interesting results. We expected to see more killings in areas of higher poverty, but could not see a clear trend. We hypothesize that this is because places with more money (and often more people) still have more killings. Using the example of California, this is easy to see: California had by far the most killings but does not have a high poverty rate. We think more killings is related more closely to population size than poverty level._ 
 
 
 ### Additional Analyses
 
-In addition to the above analyses, we mapped the killings across the U.S. using the longitudes and latitudes provided. This was a helpful way to visualize where in the U.S. killings occurred. 
+_In addition to the above analyses, we mapped the killings across the U.S. using the longitudes and latitudes provided. This was a helpful way to visualize where in the U.S. killings occurred._ 
 
-We also played with the idea of performing logistic regression to assess the risk of being black and killed. While we couldn’t quite rationalize race being an outcome, this is a potential area to explore further. 
+```{r national map}
+raw_data = read_csv(
+        "https://raw.githubusercontent.com/fivethirtyeight/data/master/police-killings/police_killings.csv"
+      )
+
+map_data2 = raw_data %>% 
+  mutate(raceethnicity = as.factor(raceethnicity)) %>% 
+  mutate(raceethnicity = fct_relevel(raceethnicity, c("Native American", "Asian/Pacific Islander", "Unknown", "Hispanic/Latino", "Black", "White"))) %>% 
+  ggplot(aes(x = longitude, y = latitude, colour = raceethnicity)) + 
+  geom_point(alpha = .7, size = 2) + 
+  scale_color_brewer(palette = "BrBG")+
+  theme(panel.background = element_rect(fill = "grey",
+                                colour = "grey",
+                                size = 0.5, linetype = "solid"),
+        legend.position = "bottom") +
+  labs(title = "Police Killings Across the US", color = "Race/Ethnicity")
+
+map_data2
+```
+
+_We also played with the idea of performing logistic regression to assess the risk of being black and killed. While we couldn’t quite rationalize race being an outcome, this is a potential area to explore further._ 
 
 
 ### Conclusion
