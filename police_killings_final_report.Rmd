@@ -11,18 +11,163 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Factors Associated with Police Killings in America in 2015
 
-###Motivation
-In recent years police brutatlity and the resulting deaths of citizens has become a critical issue in the public eye. With the traagic stories of (names of recent victims that stick in memory) lasting in our hearts and minds we wanted to know if the data matches the tragedies portrayed on the news. 
+### Motivation
 
-###Related Work
-Recognizing that no public data base existed for all of the victims of police killings, The Guardian began an interactive database called The Counted to keep track of reported police killings throughout the US. FiveThirtyEight stepped in, geocoded the locations of the killings and added selected census data. 
-###Initial Questions
+Police killings of black men have been in the media increasingly over the past few years. From Eric Garner to Michael Brown, this is a nationwide problem that Black Lives Matter (and other activist groups) has worked to shed light on to inform and educate the American public. The US is an outlier in police killings globally: the US kills more people in a matter of days than the UK kills over several decades. The goal of this report is to investigate police killings from January through early June across 364 U.S. cities. We seek to understand who has been killed, where, and how the media has skewed our perceptions of these tragedies. 
 
-###Data
+Source: https://www.theguardian.com/us-news/2015/jun/09/the-counted-police-killings-us-vs-other-countries
 
-###Exploratory Analysis
 
-###Additional Analysis
+### Dataset
 
-###Discussion
+Recognizing that no public database existed for all of the victims of police killings, The Guardian began an interactive database called The Counted to keep track of reported police killings throughout the U.S. FiveThirtyEight stepped in, geocoded the locations of the killings and added selected census data. The dataset used in this report contains individual level data for 467 people killed by police in 2015. It contains 34 variables including: name, age, race, longitude and latitude. 
 
+### Initial Questions
+
+The initial questions we sought out to answer were as follows:
+1)	Where are these killings happening? Specific cities? Specific states?
+2)	When are the killings happening? Is there a specific month with more killings?
+3)	What is the racial makeup of people killed by police?
+4)	How does poverty relate to police killings?
+
+
+### Exploratory Analysis
+
+**1)	Where are these killings happening? Specific cities? Specific states?**
+
+Read in main data set from fivethirtyeight github repository on police killings...
+```{r github data}
+library(tidyverse)
+library(reshape2)
+require(RCurl)
+
+raw_data = read_csv(
+        "https://raw.githubusercontent.com/fivethirtyeight/data/master/police-killings/police_killings.csv"
+      )
+```
+
+A look into the cities...
+```{r clean github}
+city_data = raw_data %>% 
+  mutate(city_state = paste(city, state, sep = ", ")) %>% 
+  group_by(city_state) %>% 
+  summarise(total_killed = n())
+```
+
+Found that most cities have 1 killing in 2015. LA had the most with 9.
+
+Looking to download data from same resource for 2016. The website has a downloadable csv. Formatted exactly the same. But it is missing census data and the very important latitude and longitude for matching the census data. This is a big draw back for inclusion of 2016 data but let's explore it, anyway. 
+
+```{r load 2016 data}
+raw_2016 = read_csv("./data/the-counted-2016.csv")
+
+```
+
+Just looking at the raw data there is a huge increase from 467 killings in 2015 to 1093 in 2016. 
+
+```{r clean 2016 data}
+city_data_16 = raw_2016 %>% 
+  mutate(city_state = paste(city, state, sep = ", ")) %>% 
+  group_by(city_state) %>% 
+  summarise(total_killed = n())
+```
+
+LA stays the top but more than doubles in deaths. Houston and Pheonix trade places but remain 2 and 3. All the numbers for the top killed have double or quadroupled. This could be inherent that The Guardian was tracking more diligently and that the linked data from FiveThirtyEight is only Jan - Jun for 2015. 
+
+```{r combine data}
+raw_2016 = raw_2016 %>% 
+  mutate(cause = classification)
+
+raw_combined = bind_rows(raw_data, raw_2016) %>% 
+  mutate(month = factor(month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")),
+         year = as.integer(year))
+
+city_data = city_data %>% 
+  mutate(year = 2015)
+
+city_data_16 = city_data_16 %>% 
+  mutate(year = 2016)
+
+city_combined = bind_rows(city_data, city_data_16) %>% 
+  mutate(year = as.factor(year))
+```
+
+```{r plot killings}
+top_cities = city_combined %>% 
+ top_n(20, total_killed)
+
+ggplot(top_cities, aes(fill = year, x = city_state, y = total_killed)) + geom_bar(position = "dodge", stat = "identity") +
+  theme(axis.text.x = element_text(angle = 80, hjust = 1))
+```
+
+Most of the Top 20 for police killings occured in 2016. The top 3 in 2016 also made the Top 20 overall. Looks like # 1 in 2015 would be 6 in 2016. 
+
+Cause of Death by Police...
+```{r look at cause}
+city_depth_data = raw_combined %>% 
+  filter(city %in% c( "Los Angeles", "Houston", "Phoenix", "Chicago", "San Antonio")) %>% 
+  mutate(cause = as.factor(cause),
+         armed = as.factor(armed))
+
+plot_cause = city_depth_data %>% 
+  select(city, cause, year) %>% 
+  group_by(city, cause) %>% 
+  summarise(freq = n()) %>% 
+  spread(key = cause, value = freq) 
+
+plot_cause[is.na(plot_cause)] <- 0
+
+plot_cause1 = plot_cause %>% 
+  janitor::clean_names() %>% 
+  gather(key = cause, value = freq, death_in_custody:taser) %>% 
+  ggplot(aes(fill = cause, x = city, y = freq)) + geom_bar(position = "dodge", stat = "identity") + labs(x = "City", y = "Frequency", title = "Cause of Death by Police Weapon", caption = "2015-2016") + scale_fill_brewer(palette = "Set2") 
+  
+plot_cause1
+```
+
+Victim armed...
+```{r look at armament}
+plot_armed = city_depth_data %>% 
+  select(city, armed) %>% 
+  group_by(city, armed) %>% 
+  summarise(freq = n()) %>% 
+  spread(key = armed, value = freq) 
+
+plot_armed[is.na(plot_armed)] <- 0
+
+plot_armed1 = plot_armed %>% 
+  janitor::clean_names() %>%
+  rename(unarmed = no) %>% 
+  gather(key = armed, value = freq, firearm:vehicle) %>% 
+  ggplot(aes(fill = armed, x = city, y = freq)) + geom_bar(position = "dodge", stat = "identity") + labs(x = "City", y = "Frequency", title = "Victim Armed with a Weapon", caption = "2015-2016") + scale_fill_brewer(palette = "Set2") 
+  
+plot_armed1
+```
+
+_Though 2016 gives us more data to work with it takes away context, with lacking latitude and longitudes we cannot connect the context the census data gives us. We will stick with 2015 data for the rest of the analysis._
+
+_The vast majority of police killings were happening in California, with 74 total. The city with the most killings was Los Angeles._
+
+**2)	When are the killings happening? Is there a specific month with more killings?**
+
+_This exploration did not yield interesting results. We didn’t initially realize that the dataset was only January - June. Additionally, there was little variation in killings between months._ 
+
+**3)	What is the racial makeup of people killed by police?**
+
+_The majority of people killed were white, with black being the second most common. This was slightly surprising because the media had made us believe that the most common people killed would be black. However, we then thought about the proportionality of race to the overall population and decided that while there were more whites than blacks killed, there was most likely a higher proportion of blacks killed compared to the total population of blacks._ 
+
+**4)	How does poverty relate to police killings?**
+
+_This exploration also did not yield interesting results. We expected to see more killings in areas of higher poverty, but could not see a clear trend. We hypothesize that this is because places with more money (and often more people) still have more killings. Using the example of California, this is easy to see: California had by far the most killings but does not have a high poverty rate. We think more killings is related more closely to population size than poverty level._ 
+
+
+### Additional Analyses
+
+In addition to the above analyses, we mapped the killings across the U.S. using the longitudes and latitudes provided. This was a helpful way to visualize where in the U.S. killings occurred. 
+
+We also played with the idea of performing logistic regression to assess the risk of being black and killed. While we couldn’t quite rationalize race being an outcome, this is a potential area to explore further. 
+
+
+### Conclusion
+
+Police killings in the U.S. are nuanced. They cannot be reduced to one race or one impoverished, inner-city prototype. This is a complex issue that needs to be well-documented in order to fully understand it. While this report only scratched the surface on how police killings happen in the U.S., we hope it was educational and piqued your interest. More analysis needs to be done so that we have concrete evidence to inform policy. The US has a serious problem and should look to other developed nations for direction. 
