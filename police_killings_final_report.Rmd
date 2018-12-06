@@ -96,10 +96,10 @@ raw_data %>%
 
 On average, there were 9.93 killings per state during the January to June 2015 time period. We are 95% confident that the true average number of killings for this amount/period of time lies between 6.02 and 13.86 per state.
 
-Looking to download data from same resource for 2016. The website has a downloadable csv. Formatted exactly the same. But it is missing census data and the very important latitude and longitude for matching the census data. This is a big draw back for inclusion of 2016 data but let's explore it, anyway. 
+Looking to download data from same resource for 2016. The website has a downloadable csv. Formatted exactly the same. But it is missing census data and the very important latitude and longitude for matching the census data. This is a big draw back for inclusion of 2016 data but let's explore it, anyway. Data can be downloaded here: https://www.theguardian.com/us-news/ng-interactive/2015/jun/01/about-the-counted 
 
 ```{r load 2016 data}
-raw_2016 = read_csv("https://www.theguardian.com/us-news/ng-interactive/2015/jun/01/about-the-counted")
+raw_2016 = read_csv("./data/the-counted-2016.csv")
 
 ```
 

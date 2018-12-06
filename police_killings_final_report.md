@@ -14,7 +14,7 @@ Source: <https://www.theguardian.com/us-news/2015/jun/09/the-counted-police-kill
 
 ### Dataset
 
-Recognizing that no public database existed for all of the victims of police killings, The Guardian began an interactive database called The Counted to keep track of reported police killings throughout the U.S. FiveThirtyEight stepped in, geocoded the locations of the killings and added selected census data. The dataset used in this report contains individual level data for 467 people killed by police in 2015. It contains 34 variables including: name, age, race, longitude and latitude.
+Recognizing that no public database existed for all of the victims of police killings, The Guardian began an interactive database called The Counted to keep track of reported police killings throughout the U.S. FiveThirtyEight stepped in, geocoded the locations of the killings and added selected census data. The dataset used in this report contains individual level data for 467 people killed by police in 2015. It contains 34 variables including: name, age, race, longitude and latitude. <https://github.com/fivethirtyeight/data/tree/master/police-killings>
 
 ### Initial Questions
 
@@ -28,14 +28,14 @@ The initial questions we sought out to answer were as follows: 1) Where are thes
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ───────────────────────────────────────────────────── tidyverse 1.2.1 ──
+    ## ── Attaching packages ───────────────────────────────────────────────── tidyverse 1.2.1 ──
 
     ## ✔ ggplot2 3.0.0     ✔ purrr   0.2.5
     ## ✔ tibble  1.4.2     ✔ dplyr   0.7.6
     ## ✔ tidyr   0.8.1     ✔ stringr 1.3.1
     ## ✔ readr   1.1.1     ✔ forcats 0.3.0
 
-    ## ── Conflicts ──────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ──────────────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
 
@@ -56,8 +56,14 @@ require(RCurl)
 
     ## Loading required package: RCurl
 
-    ## Warning in library(package, lib.loc = lib.loc, character.only = TRUE,
-    ## logical.return = TRUE, : there is no package called 'RCurl'
+    ## Loading required package: bitops
+
+    ## 
+    ## Attaching package: 'RCurl'
+
+    ## The following object is masked from 'package:tidyr':
+    ## 
+    ##     complete
 
 ``` r
 raw_data = read_csv(
@@ -95,10 +101,10 @@ raw_data = read_csv(
 
     ## See spec(...) for full column specifications.
 
-    ## Warning in evalq(as.numeric(pov), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
-    ## Warning in evalq(as.numeric(pov), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
 A look into the cities...
@@ -153,7 +159,7 @@ raw_data %>%
 
 On average, there were 9.93 killings per state during the January to June 2015 time period. We are 95% confident that the true average number of killings for this amount/period of time lies between 6.02 and 13.86 per state.
 
-Looking to download data from same resource for 2016. The website has a downloadable csv. Formatted exactly the same. But it is missing census data and the very important latitude and longitude for matching the census data. This is a big draw back for inclusion of 2016 data but let's explore it, anyway.
+Looking to download data from same resource for 2016. The website has a downloadable csv. Formatted exactly the same. But it is missing census data and the very important latitude and longitude for matching the census data. This is a big draw back for inclusion of 2016 data but let's explore it, anyway. Data can be downloaded here: <https://www.theguardian.com/us-news/ng-interactive/2015/jun/01/about-the-counted>
 
 ``` r
 raw_2016 = read_csv("./data/the-counted-2016.csv")
@@ -856,10 +862,10 @@ mutate(neighborhood = ifelse(share_white %in% 50:100, 0, 1)) %>%
        caption = "number of police killings within white and non-white neighborhoods, Jan-June 2015")
 ```
 
-    ## Warning in evalq(as.numeric(share_white), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
-    ## Warning in evalq(as.numeric(share_white), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
 ![](police_killings_final_report_files/figure-markdown_github/unnamed-chunk-8-1.png)
@@ -890,16 +896,16 @@ state_models = raw_data %>%
          upper_bound = exp(estimate + 1.96*std.error))
 ```
 
-    ## Warning in evalq(as.numeric(share_white), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
-    ## Warning in evalq(as.numeric(share_white), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
-    ## Warning in evalq(as.numeric(p_income), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
-    ## Warning in evalq(as.numeric(p_income), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
     ## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
@@ -988,16 +994,16 @@ america_model = raw_data %>%
   glm(neighborhood ~ cause_cat + armed_cat + thousands_p_income, family = binomial, data = .)
 ```
 
-    ## Warning in evalq(as.numeric(share_white), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
-    ## Warning in evalq(as.numeric(share_white), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
-    ## Warning in evalq(as.numeric(p_income), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
-    ## Warning in evalq(as.numeric(p_income), <environment>): NAs introduced by
+    ## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
     ## coercion
 
 ``` r
