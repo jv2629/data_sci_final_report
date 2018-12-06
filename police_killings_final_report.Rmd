@@ -34,19 +34,7 @@ The initial questions we sought out to answer were as follows:
 ### Exploratory Analysis
 
 **1)	Where are these killings happening? Specific cities? Specific states?**
-Data Import and Cleaning...
-```{r}
-
-clean_data = raw_data %>%
-  group_by(state) %>% 
-  mutate(month = factor(month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")),
-         year = as.integer(year)) %>% 
-  mutate(total_killed = n()) %>% 
-  mutate(pov = as.numeric(pov))
-  
-```
-
-Read in main data set from fivethirtyeight github repository on police killings...
+Read in main data set from fivethirtyeight github repository on police killings (and cleaning the data)...
 ```{r github data}
 library(tidyverse)
 library(reshape2)
@@ -243,7 +231,7 @@ mutate(agecat = ifelse(age %in% 0:18, 1, ifelse(age %in% 19:28, 2, ifelse(age %i
 SES by state level...
 ```{r}
 SES_clean_data = 
-  clean_data %>% 
+  raw_data %>% 
   group_by(state) %>% 
   mutate(state_pov = mean(pov)) %>% 
   select(state_pov, state, total_killed, nat_bucket) %>% 
