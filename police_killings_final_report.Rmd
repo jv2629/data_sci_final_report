@@ -34,6 +34,17 @@ The initial questions we sought out to answer were as follows:
 ### Exploratory Analysis
 
 **1)	Where are these killings happening? Specific cities? Specific states?**
+Data Import and Cleaning...
+```{r}
+
+clean_data = raw_data %>%
+  group_by(state) %>% 
+  mutate(month = factor(month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")),
+         year = as.integer(year)) %>% 
+  mutate(total_killed = n()) %>% 
+  mutate(pov = as.numeric(pov))
+  
+```
 
 Read in main data set from fivethirtyeight github repository on police killings...
 ```{r github data}
@@ -43,8 +54,15 @@ require(RCurl)
 
 raw_data = read_csv(
         "https://raw.githubusercontent.com/fivethirtyeight/data/master/police-killings/police_killings.csv"
-      )
+      ) %>%
+  janitor::clean_names() %>% 
+  group_by(state) %>% 
+  mutate(month = factor(month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")),
+         year = as.integer(year)) %>% 
+  mutate(total_killed = n()) %>% 
+  mutate(pov = as.numeric(pov))
 ```
+
 
 A look into the cities...
 ```{r clean github}
@@ -59,8 +77,6 @@ Found that most cities have 1 killing in 2015. LA had the most with 9.
 ```{r}
 state_level_data = raw_data %>%
   group_by(state) %>% 
-  mutate(month = factor(month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")),
-         year = as.integer(year)) %>% 
   summarise(total_killed = n())
 ```
 
@@ -199,14 +215,7 @@ _This exploration did not yield interesting results. We didn’t initially reali
 _The majority of people killed were white, with black being the second most common. This was slightly surprising because the media had made us believe that the most common people killed would be black. However, we then thought about the proportionality of race to the overall population and decided that while there were more whites than blacks killed, there was most likely a higher proportion of blacks killed compared to the total population of blacks. Furthermore, it seems that the majority of individuals who were killed were in the age category from 29-38. The distribution of killings seems relatively normal with respect to age with the elderly and the very young being killed the least often._ 
 
 ```{r}
-homicides_data = read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/police-killings/police_killings.csv") %>%
-  janitor::clean_names()
-
-homicides_data = homicides_data %>%
-  mutate(month = factor(month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")),
-         year = as.integer(year))
-
-homicides_data %>%
+raw_data %>%
   group_by(raceethnicity) %>%
   summarise(total_killed = n()) %>%
   mutate(raceethnicity = forcats::fct_reorder(raceethnicity, total_killed)) %>%
@@ -218,7 +227,7 @@ homicides_data %>%
   scale_fill_brewer(palette = "BrBG")
   
 
-homicides_data %>% 
+raw_data %>% 
 mutate(agecat = ifelse(age %in% 0:18, 1, ifelse(age %in% 19:28, 2, ifelse(age %in% 29:38, 3, ifelse(age %in% 39:48, 4, ifelse(age %in% 49:58, 5, ifelse(age %in% 59:68, 6, 7))))))) %>% 
   group_by(agecat) %>%
   summarise(total_killed = n()) %>%
@@ -229,21 +238,6 @@ mutate(agecat = ifelse(age %in% 0:18, 1, ifelse(age %in% 19:28, 2, ifelse(age %i
 ```
 
 **4)	How does poverty relate to police killings?**
-
-Data Import and Cleaning...
-```{r}
-raw_data = read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/police-killings/police_killings.csv") %>%
-  janitor::clean_names()
-
-
-clean_data = raw_data %>%
-  group_by(state) %>% 
-  mutate(month = factor(month, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")),
-         year = as.integer(year)) %>% 
-  mutate(total_killed = n()) %>% 
-  mutate(pov = as.numeric(pov))
-  
-```
 
 SES by state level...
 ```{r}
@@ -273,10 +267,6 @@ _This exploration also did not yield interesting results. We expected to see mor
 _In addition to the above analyses, we mapped the killings across the U.S. using the longitudes and latitudes provided. This was a helpful way to visualize where in the U.S. killings occurred._ 
 
 ```{r national map}
-raw_data = read_csv(
-        "https://raw.githubusercontent.com/fivethirtyeight/data/master/police-killings/police_killings.csv"
-      )
-
 map_data2 = raw_data %>% 
   mutate(raceethnicity = as.factor(raceethnicity)) %>% 
   mutate(raceethnicity = fct_relevel(raceethnicity, c("Native American", "Asian/Pacific Islander", "Unknown", "Hispanic/Latino", "Black", "White"))) %>% 
