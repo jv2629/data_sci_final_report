@@ -20,7 +20,7 @@ Source: https://www.theguardian.com/us-news/2015/jun/09/the-counted-police-killi
 
 ### Dataset
 
-Recognizing that no public database existed for all of the victims of police killings, The Guardian began an interactive database called The Counted to keep track of reported police killings throughout the U.S. FiveThirtyEight stepped in, geocoded the locations of the killings and added selected census data. The dataset used in this report contains individual level data for 467 people killed by police in 2015. It contains 34 variables including: name, age, race, longitude and latitude. 
+Recognizing that no public database existed for all of the victims of police killings, The Guardian began an interactive database called The Counted to keep track of reported police killings throughout the U.S. FiveThirtyEight stepped in, geocoded the locations of the killings and added selected census data. The dataset used in this report contains individual level data for 467 people killed by police in 2015. It contains 34 variables including: name, age, race, longitude and latitude. https://github.com/fivethirtyeight/data/tree/master/police-killings 
 
 ### Initial Questions
 
@@ -69,7 +69,7 @@ California tops the list with 74 killings, which makes sense since Los Angeles i
 Looking to download data from same resource for 2016. The website has a downloadable csv. Formatted exactly the same. But it is missing census data and the very important latitude and longitude for matching the census data. This is a big draw back for inclusion of 2016 data but let's explore it, anyway. 
 
 ```{r load 2016 data}
-raw_2016 = read_csv("./data/the-counted-2016.csv")
+raw_2016 = read_csv("https://www.theguardian.com/us-news/ng-interactive/2015/jun/01/about-the-counted")
 
 ```
 
