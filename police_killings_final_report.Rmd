@@ -106,7 +106,7 @@ raw_data %>%
          lower_bound = mean_killed - 1.96 * std_error)
 ```
 
-On average, there were 9.93 killings per state during the January to June 2015 time period. We are 95% confident that the true average value for this amount/period of time lies between 6.02 and 13.86.
+On average, there were 9.93 killings per state during the January to June 2015 time period. We are 95% confident that the true average number of killings for this amount/period of time lies between 6.02 and 13.86 per state.
 
 Looking to download data from same resource for 2016. The website has a downloadable csv. Formatted exactly the same. But it is missing census data and the very important latitude and longitude for matching the census data. This is a big draw back for inclusion of 2016 data but let's explore it, anyway. 
 
@@ -212,7 +212,7 @@ _This exploration did not yield interesting results. We didn’t initially reali
 
 [[Chirag's Exploratory Analysis]]
 
-_The majority of people killed were white, with black being the second most common. This was slightly surprising because the media had made us believe that the most common people killed would be black. However, we then thought about the proportionality of race to the overall population and decided that while there were more whites than blacks killed, there was most likely a higher proportion of blacks killed compared to the total population of blacks. Furthermore, it seems that the majority of individuals who were killed were in the age category from 29-38. The distribution of killings seems relatively normal with respect to age with the elderly and the very young being killed the least often._ 
+_The majority of people killed were white, with black being the second most common. This was slightly surprising because the media had made us believe that the most common people killed would be black. However, we then thought about the proportionality of race to the overall population and decided that while there were more whites than blacks killed, there was most likely a higher proportion of blacks killed compared to the total population of blacks. Furthermore, it seems that the majority of individuals who were killed were in the age category from 29-38. The distribution of killings seems relatively normal, with respect to age with the elderly and the very young being killed the least often._ 
 
 ```{r}
 raw_data %>%
@@ -221,12 +221,13 @@ raw_data %>%
   mutate(raceethnicity = forcats::fct_reorder(raceethnicity, total_killed)) %>%
   ggplot(aes(x = raceethnicity, y = total_killed, fill = raceethnicity)) +
   geom_col(size = 3) +
-  labs(x = "State", y = "Killings", 
+  labs(x = "Race", y = "Killings", 
        caption = "number of police killings in each state, Jan-June 2015") +
   theme(axis.text.x = element_text(angle = 90)) +
   scale_fill_brewer(palette = "BrBG")
-  
+```
 
+```{r}
 raw_data %>% 
 mutate(agecat = ifelse(age %in% 0:18, 1, ifelse(age %in% 19:28, 2, ifelse(age %in% 29:38, 3, ifelse(age %in% 39:48, 4, ifelse(age %in% 49:58, 5, ifelse(age %in% 59:68, 6, 7))))))) %>% 
   group_by(agecat) %>%
@@ -376,7 +377,6 @@ america_model = raw_data %>%
   mutate(p_income = as.numeric(p_income)) %>%
   mutate(thousands_p_income = p_income/10000) %>% 
   glm(neighborhood ~ cause_cat + armed_cat + thousands_p_income, family = binomial, data = .)
-##glm(solved ~ victim_sex + victim_race + victim_age, family = binomial, data = .)
 
 broom::tidy(america_model) %>% 
   ##tidying data
@@ -388,7 +388,7 @@ broom::tidy(america_model) %>%
   knitr::kable(digits = 3)
 ```
 
-In this model, the range between the upper and lower bounds for the exponentiated betas encompass the null value of 1, thus we cannot say that there is a difference in being killed in a neighborhood that is majority non-white among those who were armed with a firearm vs not armed with a firearm as well as with a $10000 increase in personal income, on average. The first odds ratio in the table corresponds with the intercept of the model which is largely uninformative (on it's own) for the relationships that we were looking to evaluate. 
+In this model, the range between the upper and lower bounds for the exponentiated betas encompass the null value of 1, thus we cannot say that there is a difference in being killed in a neighborhood that is majority non-white among those who were armed with a firearm vs not armed with or with a $10000 increase in personal income, on average. The first odds ratio in the table corresponds with the intercept of the model which is largely uninformative (on it's own) for the relationships that we were looking to evaluate. 
 
 ### Conclusion
 
